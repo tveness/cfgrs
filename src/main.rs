@@ -105,22 +105,16 @@ fn main() -> Result<()> {
     };
 
     // If specified, parse into output
-    let output: String = if let Some(output) = args.output_ty {
-        match output {
-            ConfigType::Json => {
-                serde_json::to_string(&parsed_value).context("converting to json")?
-            }
-            ConfigType::Yaml => {
-                serde_yaml::to_string(&parsed_value).context("converting to yaml")?
-            }
-            ConfigType::Toml => toml::to_string(&parsed_value).context("converting to toml")?,
+    let output: String = match (args.output_ty, &parsed_value) {
+        (Some(ConfigType::Json), _) | (None, ParsedInput::Json(_)) => {
+            serde_json::to_string(&parsed_value).context("converting to json")?
         }
-    } else {
-        // If not specified, same as input
-        match parsed_value {
-            ParsedInput::Json(j) => serde_json::to_string(&j).context("converting to json")?,
-            ParsedInput::Yaml(y) => serde_yaml::to_string(&y).context("converting to yaml")?,
-            ParsedInput::Toml(t) => toml::to_string(&t).context("converting to toml")?,
+
+        (Some(ConfigType::Yaml), _) | (None, ParsedInput::Yaml(_)) => {
+            serde_yaml::to_string(&parsed_value).context("converting to yaml")?
+        }
+        (Some(ConfigType::Toml), _) | (None, ParsedInput::Toml(_)) => {
+            toml::to_string(&parsed_value).context("converting to toml")?
         }
     };
 
