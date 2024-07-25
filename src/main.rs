@@ -92,6 +92,21 @@ fn parse_args() -> Result<Args, pico_args::Error> {
     Ok(args)
 }
 
+fn try_parse_all(input: &str) -> Result<ParsedInput> {
+    if let Ok(parsed) = serde_json::from_str(input) {
+        Ok(ParsedInput::Json(parsed))
+    } else if let Ok(parsed) = serde_yaml::from_str(input) {
+        Ok(ParsedInput::Yaml(parsed))
+    } else if let Ok(parsed) = toml::from_str(input) {
+        Ok(ParsedInput::Toml(parsed))
+    } else {
+        bail!(format!(
+            "Failed to parse following input as valid json, yaml, or toml: {:?}",
+            input
+        ))
+    }
+}
+
 fn main() -> Result<()> {
     let args = match parse_args() {
         Ok(a) => a,
@@ -142,19 +157,4 @@ fn main() -> Result<()> {
     print!("{}", output);
 
     Ok(())
-}
-
-fn try_parse_all(input: &str) -> Result<ParsedInput> {
-    if let Ok(parsed) = serde_json::from_str(input) {
-        Ok(ParsedInput::Json(parsed))
-    } else if let Ok(parsed) = serde_yaml::from_str(input) {
-        Ok(ParsedInput::Yaml(parsed))
-    } else if let Ok(parsed) = toml::from_str(input) {
-        Ok(ParsedInput::Toml(parsed))
-    } else {
-        bail!(format!(
-            "Failed to parse following input as valid json, yaml, or toml: {:?}",
-            input
-        ))
-    }
 }
