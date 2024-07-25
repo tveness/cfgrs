@@ -25,6 +25,12 @@ jobs:
             ~/.cargo/git/db/
           key: ${{ runner.os }}-cargo-${{ hashFiles('Cargo.toml') }}
 
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+          toolchain: stable
+
       - name: formatting check (to fix, apply cargo fmt)
         run: cargo fmt --check --verbose
 
