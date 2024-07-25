@@ -5,8 +5,6 @@ const HELP: &str = "\
 cfgrs is a tool to quickly convert between common configuration types, where possible.
 Currently supports json, yaml, toml.
 
-
-
 USAGE:
   cfgrs [OPTIONS] [INPUT]
 
