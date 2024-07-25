@@ -16,11 +16,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install stable toolchain
-        uses: dtolnay/rust-toolchain
+      - uses: actions/cache@v4
         with:
-          components: rustfmt, clippy
-          toolchain: stable
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('Cargo.toml') }}
 
       - name: formatting check (to fix, apply cargo fmt)
         run: cargo fmt --check --verbose
