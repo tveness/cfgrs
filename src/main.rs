@@ -1,3 +1,6 @@
+use anyhow::{bail, Result};
+use serde::Serialize;
+
 const HELP: &str = "\
 cfgrs is a tool to quickly convert between common configuration types, where possible.
 Currently supports json, yaml, toml.
@@ -17,6 +20,14 @@ enum ConfigType {
     Json,
     Yaml,
     Toml,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(untagged)]
+enum ParsedInput {
+    Json(serde_json::Value),
+    Yaml(serde_yaml::Value),
+    Toml(toml::Value),
 }
 
 #[derive(Debug)]
@@ -63,7 +74,7 @@ fn parse_args() -> Result<Args, pico_args::Error> {
     Ok(args)
 }
 
-fn main() {
+fn main() -> Result<()> {
     let args = match parse_args() {
         Ok(a) => a,
         Err(e) => {
@@ -71,5 +82,51 @@ fn main() {
             std::process::exit(1);
         }
     };
-    println!("{:#?}", args);
+
+    // Read input into appropriate format
+    let parsed_value: ParsedInput = if let Some(input_ty) = args.input_ty {
+        match input_ty {
+            ConfigType::Json => ParsedInput::Json(serde_json::from_str(&args.input)?),
+            ConfigType::Yaml => ParsedInput::Yaml(serde_yaml::from_str(&args.input)?),
+            ConfigType::Toml => ParsedInput::Toml(serde_json::from_str(&args.input)?),
+        }
+    } else {
+        // If not specified, run through all formats and see if one works
+        try_parse_all(&args.input)?
+    };
+
+    // If specified, parse into output
+    let output: String = if let Some(output) = args.output_ty {
+        match output {
+            ConfigType::Json => serde_json::to_string(&parsed_value)?,
+            ConfigType::Yaml => serde_yaml::to_string(&parsed_value)?,
+            ConfigType::Toml => toml::to_string(&parsed_value)?,
+        }
+    } else {
+        // If not specified, same as input
+        match parsed_value {
+            ParsedInput::Json(j) => serde_json::to_string(&j)?,
+            ParsedInput::Yaml(y) => serde_yaml::to_string(&y)?,
+            ParsedInput::Toml(t) => toml::to_string(&t)?,
+        }
+    };
+
+    print!("{}", output);
+
+    Ok(())
+}
+
+fn try_parse_all(input: &str) -> Result<ParsedInput> {
+    if let Ok(parsed) = serde_json::from_str(input) {
+        Ok(ParsedInput::Json(parsed))
+    } else if let Ok(parsed) = serde_yaml::from_str(input) {
+        Ok(ParsedInput::Yaml(parsed))
+    } else if let Ok(parsed) = toml::from_str(input) {
+        Ok(ParsedInput::Toml(parsed))
+    } else {
+        bail!(format!(
+            "Failed to parse following input as valid json, yaml, or toml: {:?}",
+            input
+        ))
+    }
 }
