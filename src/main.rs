@@ -1,7 +1,7 @@
+use cfgrs::{try_parse_all, ConfigType, ParsedInput};
 use std::io::Read;
 
-use anyhow::{bail, Context, Result};
-use serde::Serialize;
+use anyhow::{Context, Result};
 
 const HELP: &str = "\
 cfgrs is a tool to quickly convert between common configuration types, where possible.
@@ -14,21 +14,6 @@ OPTIONS:
   -i, --input  json|yaml|toml     specifies input type (automatically detected if not specified)
   -o, --output json|yaml|toml     specifies output type (same as input if not specified)
 ";
-
-#[derive(Debug)]
-enum ConfigType {
-    Json,
-    Yaml,
-    Toml,
-}
-
-#[derive(Debug, Serialize)]
-#[serde(untagged)]
-enum ParsedInput {
-    Json(serde_json::Value),
-    Yaml(serde_yaml::Value),
-    Toml(toml::Value),
-}
 
 #[derive(Debug)]
 struct Args {
@@ -92,21 +77,6 @@ fn parse_args() -> Result<Args, pico_args::Error> {
     Ok(args)
 }
 
-fn try_parse_all(input: &str) -> Result<ParsedInput> {
-    if let Ok(parsed) = serde_json::from_str(input) {
-        Ok(ParsedInput::Json(parsed))
-    } else if let Ok(parsed) = serde_yaml::from_str(input) {
-        Ok(ParsedInput::Yaml(parsed))
-    } else if let Ok(parsed) = toml::from_str(input) {
-        Ok(ParsedInput::Toml(parsed))
-    } else {
-        bail!(format!(
-            "Failed to parse following input as valid json, yaml, or toml: {:?}",
-            input
-        ))
-    }
-}
-
 fn main() -> Result<()> {
     let args = match parse_args() {
         Ok(a) => a,
@@ -138,7 +108,7 @@ fn main() -> Result<()> {
     let output: String = if let Some(output) = args.output_ty {
         match output {
             ConfigType::Json => {
-                serde_json::to_string(&parsed_value).context("Converting to json")?
+                serde_json::to_string(&parsed_value).context("converting to json")?
             }
             ConfigType::Yaml => {
                 serde_yaml::to_string(&parsed_value).context("converting to yaml")?
