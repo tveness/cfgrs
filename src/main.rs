@@ -1,3 +1,5 @@
+use std::io::Read;
+
 use anyhow::{bail, Context, Result};
 use serde::Serialize;
 
@@ -57,11 +59,29 @@ fn parse_args() -> Result<Args, pico_args::Error> {
         print!("cfgrs {}\n\n{}", env!("CARGO_PKG_VERSION"), HELP);
         std::process::exit(0);
     }
+    let input_ty = parse_optional_cfg_type(pargs.opt_value_from_str(["-i", "--input"])?)?;
+    let output_ty = parse_optional_cfg_type(pargs.opt_value_from_str(["-o", "--output"])?)?;
+
+    let input = if let Ok(free_args) = pargs.free_from_str() {
+        free_args
+    } else {
+        let mut buffer = vec![];
+        std::io::stdin().read_to_end(&mut buffer).map_err(|e| {
+            pico_args::Error::ArgumentParsingFailed {
+                cause: format!("{e}"),
+            }
+        })?;
+        std::str::from_utf8(&buffer)
+            .map_err(|e| pico_args::Error::ArgumentParsingFailed {
+                cause: format!("{e}"),
+            })?
+            .to_string()
+    };
 
     let args = Args {
-        input_ty: parse_optional_cfg_type(pargs.opt_value_from_str(["-i", "--input"])?)?,
-        output_ty: parse_optional_cfg_type(pargs.opt_value_from_str(["-o", "--output"])?)?,
-        input: pargs.free_from_str()?,
+        input_ty,
+        output_ty,
+        input,
     };
 
     let remaining = pargs.finish();
