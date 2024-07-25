@@ -35,7 +35,7 @@ jobs:
         run: cargo fmt --check --verbose
 
       - name: clippy (linter, fails on any warnings)
-        run: cargo clippy -- -D warnings --verbose
+        run: cargo clippy -- -D warnings
 
       - name: checking docs
         run: cargo doc --no-deps --all-features --verbose
