@@ -1,4 +1,4 @@
-use anyhow::{bail, Result};
+use anyhow::{bail, Context, Result};
 use serde::Serialize;
 
 const HELP: &str = "\
@@ -84,9 +84,15 @@ fn main() -> Result<()> {
     // Read input into appropriate format
     let parsed_value: ParsedInput = if let Some(input_ty) = args.input_ty {
         match input_ty {
-            ConfigType::Json => ParsedInput::Json(serde_json::from_str(&args.input)?),
-            ConfigType::Yaml => ParsedInput::Yaml(serde_yaml::from_str(&args.input)?),
-            ConfigType::Toml => ParsedInput::Toml(serde_json::from_str(&args.input)?),
+            ConfigType::Json => ParsedInput::Json(
+                serde_json::from_str(&args.input).context("parsing input to json")?,
+            ),
+            ConfigType::Yaml => ParsedInput::Yaml(
+                serde_yaml::from_str(&args.input).context("parsing input to yaml")?,
+            ),
+            ConfigType::Toml => ParsedInput::Toml(
+                serde_json::from_str(&args.input).context("parsing input to toml")?,
+            ),
         }
     } else {
         // If not specified, run through all formats and see if one works
@@ -96,16 +102,20 @@ fn main() -> Result<()> {
     // If specified, parse into output
     let output: String = if let Some(output) = args.output_ty {
         match output {
-            ConfigType::Json => serde_json::to_string(&parsed_value)?,
-            ConfigType::Yaml => serde_yaml::to_string(&parsed_value)?,
-            ConfigType::Toml => toml::to_string(&parsed_value)?,
+            ConfigType::Json => {
+                serde_json::to_string(&parsed_value).context("Converting to json")?
+            }
+            ConfigType::Yaml => {
+                serde_yaml::to_string(&parsed_value).context("converting to yaml")?
+            }
+            ConfigType::Toml => toml::to_string(&parsed_value).context("converting to toml")?,
         }
     } else {
         // If not specified, same as input
         match parsed_value {
-            ParsedInput::Json(j) => serde_json::to_string(&j)?,
-            ParsedInput::Yaml(y) => serde_yaml::to_string(&y)?,
-            ParsedInput::Toml(t) => toml::to_string(&t)?,
+            ParsedInput::Json(j) => serde_json::to_string(&j).context("converting to json")?,
+            ParsedInput::Yaml(y) => serde_yaml::to_string(&y).context("converting to yaml")?,
+            ParsedInput::Toml(t) => toml::to_string(&t).context("converting to toml")?,
         }
     };
 
