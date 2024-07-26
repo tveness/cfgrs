@@ -4,6 +4,8 @@ version = "0.2.0"
 edition = "2021"
 license = "AGPL-3.0-only"
 description = "CLI helper tool for converting between configuration formats"
+repository = "https://github.com/tveness/cfgrs"
+readme = "README.md"
 
 [dependencies]
 anyhow = "1.0.86"
