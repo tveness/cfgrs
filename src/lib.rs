@@ -6,6 +6,7 @@ pub enum ConfigType {
     Json,
     Yaml,
     Toml,
+    Hcl,
 }
 
 #[derive(Debug, Serialize)]
@@ -14,6 +15,7 @@ pub enum ParsedInput {
     Json(serde_json::Value),
     Yaml(serde_yaml::Value),
     Toml(toml::Value),
+    Hcl(hcl::Body),
 }
 
 pub fn try_parse_all(input: &str) -> Result<ParsedInput> {
@@ -23,6 +25,8 @@ pub fn try_parse_all(input: &str) -> Result<ParsedInput> {
         Ok(ParsedInput::Yaml(parsed))
     } else if let Ok(parsed) = toml::from_str(input) {
         Ok(ParsedInput::Toml(parsed))
+    } else if let Ok(parsed) = hcl::from_str(input) {
+        Ok(ParsedInput::Hcl(parsed))
     } else {
         bail!(format!(
             "Failed to parse following input as valid json, yaml, or toml: {:?}",
