@@ -19,6 +19,10 @@ jobs:
   dist:
     name: Dist
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
+      pull-requests: write
+      repository-projects: write
     strategy:
       fail-fast: false # don't fail other jobs if one fails
       matrix:
