@@ -3,6 +3,7 @@ name = "cfgrs"
 version = "0.2.0"
 edition = "2021"
 license = "AGPL-3.0-only"
+description = "CLI helper tool for converting between configuration formats"
 
 [dependencies]
 anyhow = "1.0.86"
