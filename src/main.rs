@@ -5,14 +5,14 @@ use anyhow::{Context, Result};
 
 const HELP: &str = "\
 cfgrs is a tool to quickly convert between common configuration types, where possible.
-Currently supports json, yaml, toml.
+Currently supports hcl, json, toml, yaml.
 
 USAGE:
   cfgrs [OPTIONS] [INPUT]
 
 OPTIONS:
-  -i, --input  json|yaml|toml     specifies input type (automatically detected if not specified)
-  -o, --output json|yaml|toml     specifies output type (same as input if not specified)
+  -i, --input  hcl|json|toml|ya,l     specifies input type (automatically detected if not specified)
+  -o, --output hcl|json|toml|yaml     specifies output type (same as input if not specified)
 ";
 
 #[derive(Debug)]
@@ -25,11 +25,12 @@ struct Args {
 fn parse_optional_cfg_type(input: Option<String>) -> Result<Option<ConfigType>, pico_args::Error> {
     if let Some(s) = input {
         match s.as_str() {
+            "hcl" => Ok(Some(ConfigType::Hcl)),
             "json" => Ok(Some(ConfigType::Json)),
-            "yaml" => Ok(Some(ConfigType::Yaml)),
             "toml" => Ok(Some(ConfigType::Toml)),
+            "yaml" => Ok(Some(ConfigType::Yaml)),
             _ => Err(pico_args::Error::OptionWithoutAValue(
-                "config type must be one of json|yaml|toml",
+                "config type must be one of hcl|json|toml|yaml",
             )),
         }
     } else {
@@ -98,6 +99,9 @@ fn main() -> Result<()> {
             ConfigType::Toml => ParsedInput::Toml(
                 serde_json::from_str(&args.input).context("parsing input to toml")?,
             ),
+            ConfigType::Hcl => {
+                ParsedInput::Hcl(hcl::from_str(&args.input).context("parsing input to hcl")?)
+            }
         }
     } else {
         // If not specified, run through all formats and see if one works
@@ -115,6 +119,9 @@ fn main() -> Result<()> {
         }
         (Some(ConfigType::Toml), _) | (None, ParsedInput::Toml(_)) => {
             toml::to_string(&parsed_value).context("converting to toml")?
+        }
+        (Some(ConfigType::Hcl), _) | (None, ParsedInput::Hcl(_)) => {
+            hcl::to_string(&parsed_value).context("converting to hcl")?
         }
     };
 

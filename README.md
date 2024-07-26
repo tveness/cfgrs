@@ -8,6 +8,7 @@
 
  cfgrs is a small CLI helper tool for converting between different configuration formats.
  The current formats supported are:
+ * hcl
  * json
  * toml
  * yaml
