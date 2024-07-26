@@ -1,6 +1,6 @@
 # cfgrs
 
-[![Crates.io](https://img.shields.io/crates/v/cfgrs.svg)](https://crates.io/crates/cfgrs)
+[![Crates.io](https://img.shields.io/crates/v/cfgrs.svg?style=for-the-badge)](https://crates.io/crates/cfgrs)
 [![Build status](https://img.shields.io/github/actions/workflow/status/tveness/cfgrs/CI?style=for-the-badge)](https://github.com/tveness/cfgrs/actions/workflows/rust.yml)
 [![License](https://img.shields.io/github/license/tveness/cfgrs?style=for-the-badge)](https://opensource.org/license/agpl-v3)
 ![Release](https://img.shields.io/github/v/tag/tveness/cfgrs?label=latest%20release&style=for-the-badge)
