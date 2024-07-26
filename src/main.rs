@@ -11,7 +11,7 @@ USAGE:
   cfgrs [OPTIONS] [INPUT]
 
 OPTIONS:
-  -i, --input  hcl|json|toml|ya,l     specifies input type (automatically detected if not specified)
+  -i, --input  hcl|json|toml|yaml     specifies input type (automatically detected if not specified)
   -o, --output hcl|json|toml|yaml     specifies output type (same as input if not specified)
 ";
 
