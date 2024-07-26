@@ -1,6 +1,9 @@
 # cfgrs
 
-[![Build status](https://github.com/tveness/cfgrs/workflows/CI/badge.svg)](https://github.com/tveness/cfgrs/actions/workflows/rust.yml)
+[![Build status](https://img.shields.io/github/actions/workflow/status/tveness/cfgrs/CI)](https://github.com/tveness/cfgrs/actions/workflows/rust.yml)
+[![License](https://img.shields.io/github/license/tveness/cfgrs?style=for-the-badge)](https://opensource.org/license/agpl-v3)
+![Release](https://img.shields.io/github/v/tag/tveness/cfgrs?label=latest%20release&style=for-the-badge)
+
 
  cfgrs is a small CLI helper tool for converting between different configuration formats.
  The current formats supported are:
