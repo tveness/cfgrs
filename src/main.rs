@@ -1,7 +1,6 @@
-use cfgrs::{try_parse_all, ConfigType, ParsedInput};
-use std::io::Read;
-
 use anyhow::{Context, Result};
+use cfgrs::{ConfigType, ParsedInput};
+use std::io::Read;
 
 const HELP: &str = "\
 cfgrs is a tool to quickly convert between common configuration types, where possible.
@@ -38,16 +37,20 @@ fn parse_optional_cfg_type(input: Option<String>) -> Result<Option<ConfigType>, 
     }
 }
 
+/// Parses all of the arguments
 fn parse_args() -> Result<Args, pico_args::Error> {
     let mut pargs = pico_args::Arguments::from_env();
 
+    // Exit early for help dialogue
     if pargs.contains(["-h", "--help"]) {
         print!("cfgrs {}\n\n{}", env!("CARGO_PKG_VERSION"), HELP);
         std::process::exit(0);
     }
+
     let input_ty = parse_optional_cfg_type(pargs.opt_value_from_str(["-i", "--input"])?)?;
     let output_ty = parse_optional_cfg_type(pargs.opt_value_from_str(["-o", "--output"])?)?;
 
+    // Read input from args, or from stdin if there aren't any there
     let input = if let Ok(free_args) = pargs.free_from_str() {
         free_args
     } else {
@@ -105,7 +108,10 @@ fn main() -> Result<()> {
         }
     } else {
         // If not specified, run through all formats and see if one works
-        try_parse_all(&args.input)?
+        // (uses FromStr implementation)
+        args.input
+            .parse()
+            .with_context(|| format!("{:?}", args.input))?
     };
 
     // If specified, parse into output
