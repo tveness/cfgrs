@@ -2,6 +2,7 @@ use anyhow::{bail, Result};
 use serde::Serialize;
 
 #[derive(Debug)]
+/// Lists different configuration file formats supported
 pub enum ConfigType {
     Json,
     Yaml,
@@ -11,6 +12,7 @@ pub enum ConfigType {
 
 #[derive(Debug, Serialize)]
 #[serde(untagged)]
+/// Wrapper for the different crates' parsed input e.g. `serde_json::Value` gets wrapped by `Json`
 pub enum ParsedInput {
     Json(serde_json::Value),
     Yaml(serde_yaml::Value),
