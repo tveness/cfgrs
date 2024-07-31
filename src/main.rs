@@ -1,7 +1,6 @@
-use cfgrs::{try_parse_all, ConfigType, ParsedInput};
-use std::io::Read;
-
 use anyhow::{Context, Result};
+use cfgrs::{ConfigType, ParsedInput};
+use std::io::Read;
 
 const HELP: &str = "\
 cfgrs is a tool to quickly convert between common configuration types, where possible.
@@ -109,7 +108,10 @@ fn main() -> Result<()> {
         }
     } else {
         // If not specified, run through all formats and see if one works
-        try_parse_all(&args.input)?
+        // (uses FromStr implementation)
+        args.input
+            .parse()
+            .with_context(|| format!("{:?}", args.input))?
     };
 
     // If specified, parse into output
